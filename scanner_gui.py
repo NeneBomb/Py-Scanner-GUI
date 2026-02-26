@@ -8,7 +8,7 @@ import subprocess
 # Usamos un diccionario de diccionarios para agrupar opciones excluyentes
 OPCIONES_NMAP = {
     "Tipo de Escaneo": {
-        "variable_name": "scan_type_var",  # Nombre de la variable de control
+        "variable_name": "scan_type_var",
         "flags": [
             ("-sS", "SYN Stealth Scan (por defecto)"),
             ("-sT", "Connect Scan (Más ruidoso)"),
@@ -38,36 +38,29 @@ OPCIONES_NMAP = {
 }
 
 # --- Variables Globales de Control ---
-# El Radiobutton para puertos y su entrada de texto
 puertos_var = None
 entrada_puertos = None
-# Diccionario para almacenar las variables de control de las categorías
 control_vars = {} 
-# Variable para opciones simples (checkboxes)
 checkbox_flags = {}
 
 # --- Funciones Auxiliares ---
 
-# Crea los RadioButtons para una categoría (solo se puede elegir uno)
 def crear_radio_flags(parent_frame, categoria_key):
     global control_vars
 
-    # Creamos una variable de Tkinter para este grupo
     var = tk.StringVar(value="")
     control_vars[categoria_key] = var
     
     opciones = OPCIONES_NMAP[categoria_key]
     
-    # Creamos un Radiobutton por cada opción
     for i, (flag_cmd, descripcion) in enumerate(opciones["flags"]):
         tk.Radiobutton(
             parent_frame, 
             text=f"{flag_cmd}: {descripcion}", 
             variable=var, 
-            value=flag_cmd # El valor que se guarda si se selecciona
+            value=flag_cmd 
         ).pack(anchor='w', padx=10, pady=2)
 
-# Crea un Checkbox simple para una bandera única
 def crear_checkbox_flag(parent_frame, flag_cmd, descripcion):
     global checkbox_flags
     var = tk.IntVar()
@@ -89,36 +82,31 @@ def ejecutar_nmap():
         mostrar_resultado_en_gui("Error: Debes ingresar una IP o Hostname.", is_error=True)
         return
 
-    # 2. Construir el comando Nmap
     comando_nmap = ["nmap"]
     
-    # 2a. Opciones de RadioButton (solo se añade el valor seleccionado)
     for categoria in control_vars.values():
         flag = categoria.get()
         if flag:
             comando_nmap.append(flag)
     
-    # 2b. Opciones de Puertos
     puertos_flag = puertos_var.get()
-    if puertos_flag == "-p": # Si la opción -p está marcada
+    if puertos_flag == "-p":
         rango = entrada_puertos.get().strip()
         if not rango:
             mostrar_resultado_en_gui("Error: La opción -p requiere un rango de puertos.", is_error=True)
             return
         comando_nmap.extend(["-p", rango])
-    elif puertos_flag: # Si se eligió -F o -p-
+    elif puertos_flag:
         comando_nmap.append(puertos_flag)
 
-    # 2c. Opciones Checkbox simples
     for flag, var in checkbox_flags.items():
         if var.get() == 1:
             comando_nmap.append(flag)
     
-    # Añadir la IP o Host al final
     comando_nmap.append(ip_objetivo)
     
     # ... (Resto de la función de ejecución, misma lógica de subprocess.run)
-    # -------------------------------------------------------------
+    # ----------------------------------------------------------------------
     
     comando_str = " ".join(comando_nmap)
     print(f"Comando a ejecutar: {comando_str}")
@@ -145,7 +133,6 @@ def ejecutar_nmap():
 
 # --- Función Auxiliar para Mostrar Resultados en GUI (Sin cambios) ---
 def mostrar_resultado_en_gui(texto_salida, is_error=False, is_running=False):
-    # Limpiamos y mostramos la salida en la pestaña de Resultados
     area_texto.config(state=tk.NORMAL)
     area_texto.delete(1.0, tk.END) 
     
@@ -217,25 +204,20 @@ def toggle_puertos_entry():
         entrada_puertos.delete(0, tk.END)
         entrada_puertos.config(state=tk.DISABLED)
 
-# Radiobuttons para la selección de puertos
 tk.Radiobutton(marco_puertos, text="Puertos comunes (-F)", variable=puertos_var, value="-F", command=toggle_puertos_entry).pack(anchor='w', padx=10)
 tk.Radiobutton(marco_puertos, text="Todos los puertos (-p-)", variable=puertos_var, value="-p-", command=toggle_puertos_entry).pack(anchor='w', padx=10)
 tk.Radiobutton(marco_puertos, text="Rango específico (-p)", variable=puertos_var, value="-p", command=toggle_puertos_entry).pack(anchor='w', padx=10)
 
-# Entrada de texto para el rango de puertos
 tk.Label(marco_puertos, text="Ej: 1-1024,80,443").pack(anchor='w', padx=30)
 entrada_puertos = tk.Entry(marco_puertos, width=40)
 entrada_puertos.pack(anchor='w', padx=30, pady=5)
 entrada_puertos.config(state=tk.DISABLED) # Inicialmente deshabilitado
 
-
-# --- Checkboxes Simples (Compatibles entre sí) ---
 marco_simples = tk.LabelFrame(marco_flags, text="Opciones Adicionales", padx=5, pady=5)
 marco_simples.grid(row=row_num, column=2, sticky="nsew", padx=10, pady=10)
 crear_checkbox_flag(marco_simples, "--script=default", "Ejecutar scripts por defecto (Intrusivo)")
 crear_checkbox_flag(marco_simples, "--open", "Mostrar solo puertos 'open' o 'open|filtered'")
 
-# 3. Botón de Ejecución
 boton_ejecutar = tk.Button(ventana, text="🚀 ¡Escanear ahora!", 
                            command=ejecutar_nmap, bg="#008080", fg="white", font=("Arial", 14, "bold"))
 boton_ejecutar.pack(pady=10, fill="x", padx=10)
@@ -250,5 +232,5 @@ area_texto.pack(pady=10, padx=10, fill="both", expand=True)
 area_texto.insert(tk.END, "El resultado de Nmap aparecerá aquí...")
 area_texto.config(state=tk.DISABLED)
 
-# 4. Iniciar el bucle principal
+# Iniciar el bucle principal
 ventana.mainloop()
