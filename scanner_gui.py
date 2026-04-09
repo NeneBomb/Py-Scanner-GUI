@@ -4,8 +4,6 @@ import tkinter as tk
 from tkinter import ttk
 import subprocess
 
-# --- Definición de las banderas de Nmap (Reestructurado) ---
-# Usamos un diccionario de diccionarios para agrupar opciones excluyentes
 OPCIONES_NMAP = {
     "Tipo de Escaneo": {
         "variable_name": "scan_type_var",
@@ -20,7 +18,7 @@ OPCIONES_NMAP = {
     "Detección": {
         "variable_name": "detection_var",
         "flags": [
-            ("", "Ninguna"), # Opción para no seleccionar nada
+            ("", "Ninguna"),
             ("-sV", "Detección de Versiones de Servicios"),
             ("-O", "Detección del Sistema Operativo (OS)"),
         ],
@@ -37,13 +35,10 @@ OPCIONES_NMAP = {
     },
 }
 
-# --- Variables Globales de Control ---
 puertos_var = None
 entrada_puertos = None
 control_vars = {} 
 checkbox_flags = {}
-
-# --- Funciones Auxiliares ---
 
 def crear_radio_flags(parent_frame, categoria_key):
     global control_vars
@@ -73,10 +68,7 @@ def crear_checkbox_flag(parent_frame, flag_cmd, descripcion):
     chk.pack(anchor='w', padx=10, pady=2)
     checkbox_flags[flag_cmd] = var
 
-
-# --- Función Principal para Ejecutar Nmap ---
 def ejecutar_nmap():
-    # 1. Obtener IP
     ip_objetivo = entrada_ip.get().strip()
     if not ip_objetivo:
         mostrar_resultado_en_gui("Error: Debes ingresar una IP o Hostname.", is_error=True)
@@ -106,7 +98,6 @@ def ejecutar_nmap():
     comando_nmap.append(ip_objetivo)
     
     # ... (Resto de la función de ejecución, misma lógica de subprocess.run)
-    # ----------------------------------------------------------------------
     
     comando_str = " ".join(comando_nmap)
     print(f"Comando a ejecutar: {comando_str}")
@@ -130,8 +121,7 @@ def ejecutar_nmap():
     except FileNotFoundError:
         mostrar_resultado_en_gui("Error: Nmap no está instalado o no se encuentra en el PATH.", is_error=True)
 
-
-# --- Función Auxiliar para Mostrar Resultados en GUI (Sin cambios) ---
+# --- Función Auxiliar para Mostrar Resultados en GUI ---
 def mostrar_resultado_en_gui(texto_salida, is_error=False, is_running=False):
     area_texto.config(state=tk.NORMAL)
     area_texto.delete(1.0, tk.END) 
@@ -145,7 +135,6 @@ def mostrar_resultado_en_gui(texto_salida, is_error=False, is_running=False):
     area_texto.config(state=tk.DISABLED)
     notebook.select(pestaña_resultados)
 
-
 # --- Configuración de la Ventana Principal ---
 ventana = tk.Tk()
 ventana.title("Mi propio Zenmap (GUI Nmap) - Radio Edition")
@@ -157,7 +146,7 @@ notebook.pack(pady=10, padx=10, fill="both", expand=True)
 
 # --- PEPESTAÑA 1: CONFIGURACIÓN ---
 pestaña_config = ttk.Frame(notebook)
-notebook.add(pestaña_config, text=" ⚙️ Configuración ")
+notebook.add(pestaña_config, text="Configuración ")
 
 # Marco para la IP
 marco_ip = tk.LabelFrame(pestaña_config, text="IP/Host Objetivo", padx=5, pady=5)
@@ -211,26 +200,25 @@ tk.Radiobutton(marco_puertos, text="Rango específico (-p)", variable=puertos_va
 tk.Label(marco_puertos, text="Ej: 1-1024,80,443").pack(anchor='w', padx=30)
 entrada_puertos = tk.Entry(marco_puertos, width=40)
 entrada_puertos.pack(anchor='w', padx=30, pady=5)
-entrada_puertos.config(state=tk.DISABLED) # Inicialmente deshabilitado
+entrada_puertos.config(state=tk.DISABLED)
 
 marco_simples = tk.LabelFrame(marco_flags, text="Opciones Adicionales", padx=5, pady=5)
 marco_simples.grid(row=row_num, column=2, sticky="nsew", padx=10, pady=10)
 crear_checkbox_flag(marco_simples, "--script=default", "Ejecutar scripts por defecto (Intrusivo)")
 crear_checkbox_flag(marco_simples, "--open", "Mostrar solo puertos 'open' o 'open|filtered'")
 
-boton_ejecutar = tk.Button(ventana, text="🚀 ¡Escanear ahora!", 
+boton_ejecutar = tk.Button(ventana, text="Escanear", 
                            command=ejecutar_nmap, bg="#008080", fg="white", font=("Arial", 14, "bold"))
 boton_ejecutar.pack(pady=10, fill="x", padx=10)
 
 
-# --- PEPESTAÑA 2: RESULTADOS (Sin cambios) ---
+# --- PESTAÑA 2: RESULTADOS (Sin cambios) ---
 pestaña_resultados = ttk.Frame(notebook)
-notebook.add(pestaña_resultados, text=" 📄 Resultados ")
+notebook.add(pestaña_resultados, text=" Resultados ")
 
 area_texto = tk.Text(pestaña_resultados, wrap="word", width=60, height=15)
 area_texto.pack(pady=10, padx=10, fill="both", expand=True)
 area_texto.insert(tk.END, "El resultado de Nmap aparecerá aquí...")
 area_texto.config(state=tk.DISABLED)
 
-# Iniciar el bucle principal
 ventana.mainloop()
