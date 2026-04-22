@@ -218,14 +218,14 @@ marco_simples.grid(row=row_num, column=2, sticky="nsew", padx=10, pady=10)
 crear_checkbox_flag(marco_simples, "--script=default", "Ejecutar scripts por defecto (Intrusivo)")
 crear_checkbox_flag(marco_simples, "--open", "Mostrar solo puertos 'open' o 'open|filtered'")
 
-boton_ejecutar = tk.Button(ventana, text="🚀 ¡Escanear ahora!", 
+boton_ejecutar = tk.Button(ventana, text=" ¡Escanear ahora!", 
                            command=ejecutar_nmap, bg="#008080", fg="white", font=("Arial", 14, "bold"))
 boton_ejecutar.pack(pady=10, fill="x", padx=10)
 
 
 # --- PEPESTAÑA 2: RESULTADOS (Sin cambios) ---
 pestaña_resultados = ttk.Frame(notebook)
-notebook.add(pestaña_resultados, text=" 📄 Resultados ")
+notebook.add(pestaña_resultados, text="  Resultados ")
 
 area_texto = tk.Text(pestaña_resultados, wrap="word", width=60, height=15)
 area_texto.pack(pady=10, padx=10, fill="both", expand=True)
